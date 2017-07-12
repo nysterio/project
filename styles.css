@@ -1,0 +1,108 @@
+/* общее поле, где размещаются все элементы игры */
+.field {
+    width: 600px;
+    height: 400px;
+    margin: 10px 0px 0px 30%;
+}
+/* поле для игры: клеточки и кнопки-переключатели */
+.gameField {
+    width: 200px;
+    height: 200px;
+    border: solid 1px black;
+    float: left;
+    margin-right: 20px;
+    display: flex;
+    flex-wrap: wrap; /* блоки расположены в несколько горизонтальных рядов (если не помещаются в один ряд) */
+}
+/* поле кнопок-переключателей (накладывается на поле клеток) */
+.fieldButtons {
+    width: 155px;
+    height: 155px;
+    float: left;
+    position: absolute;
+    margin: 45px 0px 0px 45px;
+}
+/* поле системных кнопок: "Новая игра" и т. д. */
+.fieldSystemButtons {
+    width: 155px;
+    height: 155px;
+    float: left;
+    position: static;
+}
+/* блоки-клеточки игры */
+.block {
+    width: 24%;
+    height: 24%;
+    border: solid 1px black;
+    float: left;
+    text-align:  center;
+    line-height: 50px;
+    font-size: x-large;
+    font-weight: bold;
+}
+/* кнопки-переключатели */
+.button {
+    width: 9px;
+    height: 9px;
+    background: #ff0000;
+    border: solid 1px black;
+    float: left;
+    margin: 0px 39px 36px 0px;
+    border-radius: 50%;
+}
+/* системные кнопки: "Новая игра" и т. д. */
+.systemButtons {
+    width: 120px;
+    height: 20px;
+    position: relative;
+    margin: 10px;
+}
+/* таймер */
+#timer {
+    background: #efeff1;
+    width: 100px;
+    height: 40px;
+    border: solid 1px black;
+    float: left;
+    text-align: center;
+    line-height: 50px;
+    font-size: x-large;
+    font-weight: bold;
+    margin: 20px;
+    padding-bottom: 5px;
+    box-shadow: 10px 10px 20px #b18f8f;
+    border-radius: 3%;
+}
+/* для анимации: перемещения на один элемент */
+@keyframes move_right {
+    0% {
+        transform: translate(0%);
+    }
+    100% {
+        transform: translate(100%);
+    }
+}
+@keyframes move_up {
+    0% {
+        transform: translate(0%);
+    }
+    100% {
+        transform: translate(0%, -100%);
+    }
+}
+@keyframes move_left {
+    0% {
+        transform: translate(0%);
+    }
+    100% {
+        transform: translate(-100%);
+    }
+}
+@keyframes move_down {
+    0% {
+        transform: translate(0%);
+    }
+    100% {
+        transform: translate(0%, 100%);
+    }
+}

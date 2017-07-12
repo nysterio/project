@@ -1,0 +1,204 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Игра</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+<script src="createObjects.js"></script>
+<script>
+
+
+        var QUANTITY_ROWS = 4;
+        var QUANTITY_COLUMNS = 4;
+        var ALPHABET_STRING = 'ABCDEFGHIJKLMNOP';
+        var ANIMATION_DURATION = 0.5;
+
+        var buttons = document.querySelectorAll('.button');
+        var QUANTITY_BUTTONS = buttons.length;
+        var blocks = document.querySelectorAll('.block');
+        var QUANTITY_BLOCKS = blocks.length;
+
+        fillBlocksFromRandomMatrix();
+        setOnclickForButtons();
+        setOnclickForSystemButtons();
+        var timer = setTimer();
+
+        function setOnclickForButtons() {
+            for (var i = 0; i < QUANTITY_BUTTONS; i++) {
+                (function(i){
+                    buttons[i].onclick = function () {
+                        setButtonsToDisabledState(true); // по нажатии на кнопку делаем ее некликабельной до конца анимации
+                        //var selectedButton = this.id.substring(6); // или Number(a.replace(/\D+/g,"") - берет цифры с произвольной строки
+                        runAnimation(i);
+                        setTimeout(function () {
+                            setButtonsToDisabledState(false); //делаем кнопку кликабельной
+                        }, ANIMATION_DURATION * 1000 - 20);
+                        setTimeout(function () {
+                            if (checkForWin()) {
+                                playWinSound();
+                                clearInterval(timer); // отменяем выполнение предыдущего таймера
+                                setButtonsToDisabledState(true);
+                            }
+                        },ANIMATION_DURATION * 1000 - 20);
+                    }
+                })(i);
+            }
+        }
+        function setOnclickForSystemButtons() {
+            var systemButtons = document.querySelectorAll('.systemButtons');
+            systemButtons[0].onclick = function () {
+                setButtonsToDisabledState(false);
+                fillBlocksFromRandomMatrix();
+                clearInterval(timer); // отменяем выполнение предыдущего таймера
+                timer = setTimer(); // устанавливаем новый
+            }
+            systemButtons[1].onclick = function () {
+                cheatsOn();
+                if (checkForWin()) {
+                    playWinSound();
+                    clearInterval(timer); // отменяем выполнение предыдущего таймера
+                    setButtonsToDisabledState(true);
+                }
+            }
+        }
+
+        /* устанавливает состояние всех кнопок-переключателей (доступны для нажатия или нет) */
+        function setButtonsToDisabledState(isDisabled) {
+            var buttons = document.getElementsByClassName("button");
+            for (var i = 0; i < QUANTITY_BUTTONS; i++) {
+                buttons[i].disabled = isDisabled;
+            }
+        }
+
+        function runAnimation(indexOfButton) {
+            for (var j = 0; j < QUANTITY_BLOCKS; j++) {
+                switch (+blocks[j].style.order) {
+                    case (+indexOfButton + Math.floor(indexOfButton / 3)): {
+                        el1 = blocks[j];
+                        break;
+                    }
+                    case (+indexOfButton + 1 + Math.floor(indexOfButton / 3)): {
+                        el2 = blocks[j];
+                        break;
+                    }
+                    case (+indexOfButton + 4 + Math.floor(indexOfButton / 3)): {
+                        el3 = blocks[j];
+                        break;
+                    }
+                    case (+indexOfButton + 5 + Math.floor(indexOfButton / 3)): {
+                        el4 = blocks[j];
+                        break;
+                    }
+                }
+            }
+            /*
+         var el1 = document.getElementById("block" + (+i + Math.floor(i/3)));
+         var el2 = document.getElementById("block" + (+i + 1 + Math.floor(i/3)));
+         var el3 = document.getElementById("block" + (+i + 4 + Math.floor(i/3)));
+         var el4 = document.getElementById("block" + (+i + 5 + Math.floor(i/3)));*/
+        el1.style.animation = "move_down " + ANIMATION_DURATION + "s 1 ease-in-out";
+        el2.style.animation = "move_left " + ANIMATION_DURATION + "s 1 ease-in-out";
+        el3.style.animation = "move_right " + ANIMATION_DURATION + "s 1 ease-in-out";
+        el4.style.animation = "move_up " + ANIMATION_DURATION + "s 1 ease-in-out";
+
+        /* за 20 мс до окончания анимации меняем порядок следования блоков */
+        setTimeout(function() {
+            el1.style.order = +el1.style.order + 4;
+            el2.style.order = +el2.style.order - 1;
+            el3.style.order = +el3.style.order + 1;
+            el4.style.order = +el4.style.order - 4;
+            el1.style.animation = "";
+            el2.style.animation = "";
+            el3.style.animation = "";
+            el4.style.animation = "";
+        }, ANIMATION_DURATION * 1000 - 20);
+    }
+
+    function checkForWin() {
+        for (var i = 0; i < QUANTITY_ROWS * QUANTITY_COLUMNS; i++) {
+            if(blocks[i].innerHTML !== ALPHABET_STRING[blocks[i].style.order]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    function playWinSound() {
+        var audio = new Audio();
+        audio.src = 'https://wav-library.net/effect/nintendo/super_mario_bros/13_koopas_defeat_fanfare.mp3';
+        audio.autoplay = true;
+    }
+    function cheatsOn() {
+        for (var i = 0; i < QUANTITY_BLOCKS; i++) {
+            // присваиваем порядку следования блока индекс буквы в правильной последовательности
+            blocks[i].style.order = ALPHABET_STRING.indexOf(blocks[i].textContent);
+        }
+    }
+
+
+    function fillBlocksFromRandomMatrix() {
+        var randomMatrix = getRandomMatrix(ALPHABET_STRING);
+        for (var i = 0; i < QUANTITY_COLUMNS * QUANTITY_ROWS; i++) {
+            var row = i % QUANTITY_ROWS;
+            var column = Math.floor(i / QUANTITY_COLUMNS);
+            document.getElementById('block' + i).innerHTML = randomMatrix[row][column];
+        }
+    }
+    function getRandomMatrix(stringForRandom) {
+        var quantityLetters = stringForRandom.length;
+        // создаем пустой массив
+        var randomArray = [];
+        for (var i = 0; i < quantityLetters; i++) {
+            randomArray[i] = null;
+        }
+        // перемешивание строки для перевода в матрицу
+        for (var i = 0; i < quantityLetters; i++) {
+            var randomIndex = random(0, quantityLetters - 1);
+            // проверка, нет ли элемента по сгенерированному индексу;
+            // если есть, то добавляем по следующему первому свободному индексу
+            // (после последнего переходим в начало)
+            while (randomArray[randomIndex] !== null) {
+                randomIndex++;
+                if (randomIndex === quantityLetters) {
+                    randomIndex = 0;
+                }
+            }
+            randomArray[randomIndex] = stringForRandom[i];
+        }
+        return getMatrixFromArray(randomArray, QUANTITY_ROWS, QUANTITY_COLUMNS);
+    }
+    // перевод одномерного массива в матрицу
+    // передаются массив для перевода, количество строк и столбцов будущей матрицы
+    function getMatrixFromArray(array, rows, columns) {
+        var matrix = [];
+        var indexArray = 0;
+        for (var i = 0; i < rows; i++) {
+            matrix[i] = [];
+            for (var j = 0; j < columns; j++) {
+                matrix[i][j] = array[indexArray];
+                indexArray++;
+            }
+        }
+        return matrix;
+    }
+    // генерация случайного числа от min до max включительно
+    function random(min, max) {
+        var range = max - min + 1;
+        return Math.floor(Math.random() * range) + min;
+    }
+
+
+// устанавливает таймер и возвращает идентефикатор таймера
+function setTimer() {
+    var timeInSecond = 0;
+    var intervalID = setInterval(function () {
+        timeInSecond++;
+        var date = new Date(timeInSecond * 1000);
+        document.getElementById("timer").innerHTML = date.getUTCHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    }, 1000);
+    return intervalID;
+}
+</script>
+</body>
+</html>
